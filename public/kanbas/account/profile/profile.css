@@ -1,0 +1,44 @@
+
+h2 {
+    font-size: 1.8em;
+    line-height: 1.5;
+    display: block;
+    margin: 6px 0;
+    font-family: "Lato Extended","Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.profile-avatar {
+    margin-right: 20px;
+    width: 128px;
+    height: 128px;
+    border-radius: 500px;
+    border: 2px solid #d3d9d9;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #fff;
+}
+.avatar {
+    color: gray;
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
+.profile-header {
+    padding: 20px 0 0 0;
+    line-height: 1.25;
+    font-weight: normal;
+    color: rgb(74, 71, 71);
+}
+
+#avatar-section {
+    width:120px !important;
+}
+
+#profile-section {
+    width: 300px !important;
+}
+
+#edit-profile {
+    width: 200px !important;
+}

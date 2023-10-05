@@ -1,5 +1,5 @@
 p#id-selector-1 {
- background-color: red;
+ background-color: var(--red);
  color: white;
 }
 p#id-selector-2 {
@@ -11,7 +11,7 @@ p#id-selector-2 {
  color: blue;
 }
 .wd-selector-1 .wd-selector-3 {
-   background-color: red;
+   background-color: var(--red);
    color: white;
 }
 .wd-selector-2 > .wd-selector-3 > .wd-selector-4 {
@@ -204,22 +204,10 @@ p#id-selector-2 {
   display: flex;
   flex-direction: row;
 }
-
-.wd-flex-row-container {
-  display: flex;
-  flex-direction: row;
-}
 .wd-flex-grow-1 {
   flex-grow: 1;
 }
 
-.wd-flex-row-container {
-  display: flex;
-  flex-direction: row;
-}
-.wd-flex-grow-1 {
-  flex-grow: 1;
-}
 .wd-width-75px {
   width: 75px;
 }
