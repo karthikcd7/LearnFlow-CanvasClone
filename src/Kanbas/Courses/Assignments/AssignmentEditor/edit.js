@@ -3,12 +3,30 @@ import db from "../../../Database";
 import { Link, useLocation, useParams, useNavigate } from "react-router-dom";
 
 function App() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+
+  const location = useLocation();
+  const pathname = location.pathname;
+  const assignmentId = pathname.slice(pathname.lastIndexOf("/") + 1);
+  const assignment = db.assignments.find(
+    (assignment) => assignment._id === assignmentId
+  );
+  const courseId = useParams().courseId;
+  const [assignments, setAssignments] = useState(db.assignments);
+
+
+
+  const [title, setTitle] = useState(assignment.title);
+
+
+
+
+  const [description, setDescription] = useState("fgfbggb");
   const [points, setPoints] = useState("");
+
   const [group, setGroup] = useState("Assignments");
   const [displayGrade, setDisplayGrade] = useState("Percentage");
   const [checked, setChecked] = useState(false);
+
 
   const [textArea, setTextArea] = useState(false);
   const [websiteUrl, setWebsiteUrl] = useState(false);
@@ -32,19 +50,14 @@ function App() {
   const handleChange = () => {
     setChecked(!checked);
   };
+
   const navigate = useNavigate();
   const handleSave = () => {
     console.log("Actually saving assignment TBD in later assignments");
     navigate(`/Kanbas/Courses/${courseId}/Assignments`);
   };
 
-  const location = useLocation();
-  const pathname = location.pathname;
-  const assignmentId = pathname.slice(pathname.lastIndexOf("/") + 1);
-  const assignment = db.assignments.find(
-    (assignment) => assignment._id === assignmentId
-  );
-  const courseId = useParams().courseId;
+ 
 
   return (
     <form onSubmit={handleSubmit}>

@@ -23,7 +23,6 @@ function AssignmentEditor() {
             </button>
           </div>
         </div>
-        
         <App />
       </div>
     </div>

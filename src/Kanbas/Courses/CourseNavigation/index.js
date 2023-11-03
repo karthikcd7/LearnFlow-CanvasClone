@@ -3,6 +3,7 @@ import "../../css/menu.css";
 import "../../css/sections.css";
 import db from "../../Database";
 import {AiOutlineEyeInvisible} from "react-icons/ai";
+import { useSelector } from "react-redux";
 function CourseNavigation() {
   const links = [
     "Home",
@@ -26,7 +27,8 @@ function CourseNavigation() {
   ];
   const { courseId } = useParams();
   const { pathname } = useLocation();
-  const course = db.courses.find((course) => course._id === courseId);
+  const courses = useSelector((state) => state.dashReducer.courses)
+  const course  = courses[0];
   return (
     <div
       id="side-bar"
