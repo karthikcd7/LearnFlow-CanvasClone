@@ -237,8 +237,8 @@ function ModuleList() {
                 <AiOutlinePlus
                   className="me-3"
                   onClick={() => {
-                    openLessonModal();
                     setSelectedModuleId(module.id);
+                    openLessonModal();
                   }}
                 />
                 <Dropdown>

@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-// import { useState } from "react";
 import db from "../Database";
 const initialState = {
   courses: db.courses
