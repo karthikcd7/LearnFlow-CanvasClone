@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import React from "react";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import "../css/menu.css";
 import "../css/sections.css";
@@ -10,7 +9,6 @@ import "./dashboard.css";
 import { FaPen, FaTrash } from "react-icons/fa";
 
 function Dashboard() {
-  const dispatch = useDispatch();
   const [courses, setCourses] = useState([]);
   const [course, setCourse] = useState({});
   const API_BASE = process.env.REACT_APP_API_BASE;
