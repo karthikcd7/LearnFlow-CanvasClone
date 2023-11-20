@@ -9,7 +9,8 @@ function WorkingWithArrays() {
     due: "2021-09-09",
     completed: false,
   });
-  const API = "http://localhost:4000/a5/todos";
+  const URL = process.env.REACT_APP_LAB_API_BASE;
+  const API = `${URL}/todos`;
   const [todos, setTodos] = useState([]);
 
   const fetchTodos = async () => {
