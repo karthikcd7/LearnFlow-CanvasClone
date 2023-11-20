@@ -1,69 +1,63 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import db from "../../Database";
 import { FaEllipsisV } from "react-icons/fa";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Modal, Form } from "react-bootstrap";
 import Dropdown from "react-bootstrap/Dropdown";
-
+import { addModule, deleteModule, updateModule, setModule, setModules } from "./modulesReducer";
+import { findModulesForCourse, createModule, editModule, removeModule } from "./service";
+import { useDispatch, useSelector } from "react-redux";
 function ModuleList() {
-
+  const dispatch = useDispatch();
   const { courseId } = useParams();
+  const { modules } = useSelector((state) => state.modulesReducer);
+  const { module } = useSelector((state) => state.modulesReducer);
 
-  const [modules, setModules] = useState(db.modules);
-
-  const [module, setModule] = useState({ course: courseId });
   const [lesson, setLesson] = useState({ id: new Date().getTime().toString() });
   const courseModules = modules.filter((module) => module.course === courseId);
 
   const [showModal, setShowModal] = useState(false);
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
-  const addModule = (module) => {
-    setModules([
-      { ...module, id: new Date().getTime().toString(), lessons: [] },
-      ...modules,
-    ]);
-    closeModal();
+  const handleAddModule = () => {
+    createModule(courseId, module).then((module) => {
+      dispatch(addModule(module));
+      refresh();
+      closeModal();
+    });
+  };
+  const handleDeleteModule = (id) => {
+    removeModule(id).then((module) => {
+      dispatch(deleteModule(module));
+      refresh();
+    });
   };
 
   const [showLessonModal, setShowLessonModal] = useState(false);
-  const [selectedModuleId, setSelectedModuleId] = useState();
 
-  const openLessonModal = () => {
+  const openLessonModal = (id) => {
+    const module = modules.find((module) => module.id == id);
+    setSelectedModule(module);
     setShowLessonModal(true);
   };
   const closeLessonModal = () => setShowLessonModal(false);
 
   const addLessonModule = (lesson) => {
-    const module = modules.find((m) => m.id === selectedModuleId);
-    setModules((prevModules) =>
-      prevModules.map((m) => {
-        if (m.id === selectedModuleId) {
-          return {
-            ...m,
-            lessons: [...m.lessons, lesson],
-          };
-        } else {
-          return m;
-        }
-      })
-    );
-
-    closeLessonModal();
+    editModule({ ...selectedModule, lessons: [...selectedModule.lessons, lesson] }).then((module) => {
+      dispatch(updateModule(module));
+      refresh();
+      closeLessonModal();
+    });
   };
   const [selectedModule, setSelectedModule] = useState(module);
   const [showEditModuleNameModal, setShowEditModuleNameModal] = useState(false);
 
   const [editedModuleName, setEditedModuleName] = useState("");
-  console.log("Module name:", module.name);
 
   const openEditModuleNameModal = (id) => {
     const module = modules.find((module) => module.id == id);
     setSelectedModule(module);
-    console.log("Module name:", module);
-
     setEditedModuleName(module.name);
     setShowEditModuleNameModal(true);
   };
@@ -74,26 +68,13 @@ function ModuleList() {
   };
 
   const saveEditedModuleName = () => {
-    setModules((prevModules) =>
-      prevModules.map((module) => {
-        if (module.id === selectedModule.id) {
-          return {
-            ...module,
-            name: editedModuleName,
-          };
-        } else {
-          return module;
-        }
-      })
-    );
-
-    closeEditModuleNameModal();
+    editModule({ ...selectedModule, name: editedModuleName }).then((mod) => {
+      dispatch(updateModule(mod));
+      refresh();
+      closeEditModuleNameModal();
+    });
   };
 
-  const deleteModule = (id) => {
-    const newModules = modules.filter((module) => module.id !== id);
-    setModules(newModules);
-  };
   const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
     <div
       ref={ref}
@@ -106,19 +87,21 @@ function ModuleList() {
     </div>
   ));
 
+  const refresh = () => {
+    findModulesForCourse(courseId).then((modules) => dispatch(setModules(modules)));
+  };
+
+  useEffect(() => {
+    findModulesForCourse(courseId).then((modules) => dispatch(setModules(modules)));
+  }, [courseId]);
+
   return (
     <>
       <div class="mb-1">
         <div class="float-end" style={{ whiteSpace: "nowrap" }}>
-          <button class="btn btn-secondary gray-btn margin-right-half">
-            Collapse All
-          </button>
-          <button class="btn btn-secondary gray-btn margin-right-half ">
-            View Progress
-          </button>
-          <button class="btn btn-secondary gray-btn margin-right-half">
-            Publish All
-          </button>
+          <button class="btn btn-secondary gray-btn margin-right-half">Collapse All</button>
+          <button class="btn btn-secondary gray-btn margin-right-half ">View Progress</button>
+          <button class="btn btn-secondary gray-btn margin-right-half">Publish All</button>
           <button class="btn btn-danger margin-right-half" onClick={openModal}>
             <AiOutlinePlus />
             Module
@@ -138,23 +121,9 @@ function ModuleList() {
             <li className="list-group">
               <div className="list-group-item">
                 <lable>Module Name</lable>
-                <input
-                  value={module.name}
-                  onChange={(e) =>
-                    setModule({
-                      ...module,
-                      name: e.target.value,
-                    })
-                  }
-                />
+                <input value={module.name} onChange={(e) => dispatch(setModule({ ...module, name: e.target.value }))} />
               </div>
-
-              <button
-                className="list-group-item btn btn-secondary"
-                onClick={() => {
-                  addModule(module);
-                }}
-              >
+              <button className="list-group-item btn btn-secondary" onClick={handleAddModule}>
                 Add
               </button>
             </li>
@@ -171,15 +140,7 @@ function ModuleList() {
             <li className="list-group">
               <div className="list-group-item">
                 <lable>Lesson Name</lable>
-                <input
-                  value={lesson.name}
-                  onChange={(e) =>
-                    setLesson({
-                      ...lesson,
-                      name: e.target.value,
-                    })
-                  }
-                />
+                <input value={lesson.name} onChange={(e) => setLesson({ ...lesson, name: e.target.value })} />
               </div>
               <button
                 className="list-group-item btn btn-secondary"
@@ -203,15 +164,9 @@ function ModuleList() {
             <div className="list-group">
               <div className="list-group-item">
                 <label>Module Name</label>
-                <input
-                  value={editedModuleName}
-                  onChange={(e) => setEditedModuleName(e.target.value)}
-                />
+                <input value={editedModuleName} onChange={(e) => setEditedModuleName(e.target.value)} />
               </div>
-              <button
-                className="list-group-item btn btn-secondary"
-                onClick={saveEditedModuleName}
-              >
+              <button className="list-group-item btn btn-secondary" onClick={saveEditedModuleName}>
                 Save
               </button>
             </div>
@@ -222,14 +177,8 @@ function ModuleList() {
       <div style={{ width: "100%" }}>
         {courseModules.map((module) => (
           <div className="list-group mb-5">
-            <li
-              className="list-group-item list-group-item-secondary module-name"
-              type="button"
-            >
-              <FaEllipsisV
-                className="ellipse-colour"
-                style={{ marginRight: "-10px" }}
-              />
+            <li className="list-group-item list-group-item-secondary module-name" type="button">
+              <FaEllipsisV className="ellipse-colour" style={{ marginRight: "-10px" }} />
               <FaEllipsisV className="ellipse-colour" />
               {module.name}
               <p className="float-end" style={{ display: "inline-flex" }}>
@@ -237,26 +186,16 @@ function ModuleList() {
                 <AiOutlinePlus
                   className="me-3"
                   onClick={() => {
-                    setSelectedModuleId(module.id);
-                    openLessonModal();
+                    openLessonModal(module.id);
                   }}
                 />
                 <Dropdown>
-                  <Dropdown.Toggle
-                    as={CustomToggle}
-                    id="dropdown-custom-components"
-                  >
+                  <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components">
                     <FaEllipsisV className="ellipse-colour" />
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item
-                      onClick={() => openEditModuleNameModal(module.id)}
-                    >
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => deleteModule(module.id)}>
-                      Delete
-                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => openEditModuleNameModal(module.id)}>Edit</Dropdown.Item>
+                    <Dropdown.Item onClick={() => handleDeleteModule(module.id)}>Delete</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </p>
@@ -265,10 +204,7 @@ function ModuleList() {
             <div id={`multiCollapse${module.id}`}>
               {module.lessons.map((lesson) => (
                 <li className="list-group-item list-group-item-action">
-                  <FaEllipsisV
-                    className="ellipse-colour"
-                    style={{ marginRight: "-10px" }}
-                  />
+                  <FaEllipsisV className="ellipse-colour" style={{ marginRight: "-10px" }} />
                   <FaEllipsisV className="ellipse-colour" />
                   {lesson.name}
                   <p className="float-end">

@@ -1,36 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
 import db from "../Database";
+import axios from "axios";
 const initialState = {
-  courses: db.courses
-  ,
+  courses: db.courses,
   course: db.courses[0],
 };
 const coursesSlice = createSlice({
   name: "courses",
   initialState,
   reducers: {
-    addCourse: (state, action) => {
-      console.log("i was here");
-      const newCourses = [
-          ...state.courses,
-        { ...action.payload, _id: new Date().getTime().toString() },
-      ];
+    addCourse: async (state, action) => {
+      const response = await axios.post(URL, state.course);
+      const newCourses = [...state.courses, { ...response.data, _id: new Date().getTime().toString() }];
       state.courses = newCourses;
-      console.log(state.courses);
-      
     },
     deleteCourse: (state, action) => {
-      const newCourses = state.courses.filter((course) => course.id !== action.payload);
+      const newCourses = state.courses.filter((course) => course._id !== action.payload);
       state.courses = newCourses;
     },
     updateCourse: (state, action) => {
-      const newCourses = state.courses.map((item) =>
-        item.id === action.payload.id ? action.payload : item
-      );
+      const newCourses = state.courses.map((item) => (item._id === action.payload._id ? action.payload : item));
       state.courses = newCourses;
       state.course = { title: "" };
     },
     setCourse: (state, action) => {
+      console.log("dwejhfjhrufjlfjreiofhjf");
+      console.log(action.payload);
       state.course = action.payload;
     },
   },

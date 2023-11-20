@@ -1,28 +1,47 @@
 import { Link } from "react-router-dom";
 import React from "react";
-import db from "../Database";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-
+import { useEffect, useState } from "react";
 import "../css/menu.css";
 import "../css/sections.css";
 import "../css/index.css";
 import "./dashboard.css";
 import { FaPen, FaTrash } from "react-icons/fa";
-import { addCourse } from "./dashReducer";
 
-function Dashboard({
-  // courses,
-  // course,
-  // setCourse,
-  // addNewCourse,
-  deleteCourse,
-  updateCourse,
-}) {
-  const courses = useSelector((state) => state.dashReducer.courses)
-  const [course, setCourse] = React.useState(courses[0]);
-  console.log("here2", course.term);
+function Dashboard() {
   const dispatch = useDispatch();
-
+  const [courses, setCourses] = useState([]);
+  const [course, setCourse] = useState({});
+  const URL = "http://localhost:4000/api/courses";
+  const updateCourse = async (course) => {
+    const response = await axios.put(`${URL}/${course._id}`, course);
+    setCourses(
+      courses.map((c) => {
+        if (c._id === course._id) {
+          return course;
+        }
+        return c;
+      })
+    );
+    setCourse({ name: "" });
+  };
+  const deleteCourse = async (id) => {
+    const response = await axios.delete(`${URL}/${id}`);
+    setCourses(courses.filter((c) => c._id !== id));
+  };
+  const addCourse = async () => {
+    const response = await axios.post(URL, course);
+    setCourses([...courses, response.data]);
+    setCourse({ name: "" });
+  };
+  const findAllCourses = async () => {
+    const response = await axios.get(URL);
+    setCourses(response.data);
+  };
+  useEffect(() => {
+    findAllCourses();
+  }, []);
   return (
     <div>
       <div class="nav-toggle-and-crumbs">
@@ -67,9 +86,7 @@ function Dashboard({
             value={course.startDate}
             className="form-control"
             type="date"
-            onChange={(e) =>
-              setCourse({ ...course, startDate: e.target.value })
-            }
+            onChange={(e) => setCourse({ ...course, startDate: e.target.value })}
           />
         </div>
 
@@ -84,18 +101,11 @@ function Dashboard({
           />
         </div>
 
-        <button
-          class="btn btn-primary card-icon card-icon-button"
-          // onClick={addNewCourse}
-          onClick={() => dispatch(addCourse(course))}
-        >
+        <button class="btn btn-primary card-icon card-icon-button" onClick={() => addCourse(course)}>
           Add
         </button>
 
-        <button
-          class="btn btn-primary card-icon card-icon-button"
-          onClick={() => updateCourse(course)}
-        >
+        <button class="btn btn-primary card-icon card-icon-button" onClick={() => updateCourse(course)}>
           Update
         </button>
       </div>
@@ -109,23 +119,12 @@ function Dashboard({
           <div class="col-sm-3 d-flex d-sm-block mb-4 course-card">
             <div class="card">
               <div class="dropdown card-menu position-absolute top-0 end-0">
-                <button
-                  class="card-dots-attributes card-dots-position"
-                  type="button"
-                >
+                <button class="card-dots-attributes card-dots-position" type="button">
                   <i class="fas fa-ellipsis-v"></i>
                 </button>
               </div>
-              <Link
-                key={course._id}
-                to={`/Kanbas/Courses/${course._id}/Home`}
-                className="list-group-item"
-              >
-                <img
-                  src="../../images/course-image.jpeg"
-                  class="card-img-top"
-                  alt="..."
-                ></img>
+              <Link key={course._id} to={`/Kanbas/Courses/${course._id}/Home`} className="list-group-item">
+                <img src="../../images/course-image.jpeg" class="card-img-top" alt="..."></img>
 
                 <div class="card-body">
                   <a href="#" class="card-link">
