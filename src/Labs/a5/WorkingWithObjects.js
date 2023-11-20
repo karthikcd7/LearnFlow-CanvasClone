@@ -64,7 +64,7 @@ function WorkingWithObjects() {
         type="number"
       />
       <h4>Get Completed</h4>
-      <a href="http://localhost:4000/a5/assignment/completed" className="btn btn-primary me-2">
+      <a href={URL + "/completed"} className="btn btn-primary me-2">
         Get Completed
       </a>
       <a href={`${URL}/completed/${assignment.completed}`} className="btn btn-primary me-2 float-end">
