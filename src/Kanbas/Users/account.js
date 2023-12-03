@@ -7,6 +7,10 @@ function Account() {
   const { id } = useParams();
   const [account, setAccount] = useState(null);
   const navigate = useNavigate();
+  const signout = async () => {
+    await client.signout();
+    navigate("/kanbas/signin");
+  };
   const fetchAccount = async () => {
     const account = await client.account();
     setAccount(account);
@@ -56,7 +60,11 @@ function Account() {
             value={account.email}
             onChange={(e) => setAccount({ ...account, email: e.target.value })}
           />
-          <select className="form-control my-2" value={account.role} onChange={(e) => setAccount({ ...account, role: e.target.value })}>
+          <select
+            className="form-control my-2"
+            value={account.role}
+            onChange={(e) => setAccount({ ...account, role: e.target.value })}
+          >
             <option value="USER">User</option>
             <option value="ADMIN">Admin</option>
             <option value="FACULTY">Faculty</option>
@@ -65,6 +73,11 @@ function Account() {
           <button className="btn btn-primary w-100" onClick={save}>
             Save
           </button>
+          <div className="my-3">
+            <button className="btn btn-danger w-100" onClick={signout}>
+              Signout
+            </button>
+          </div>
           <div className="my-3">
             <Link to="/kanbas/admin/users" className="btn btn-warning w-100">
               Users
